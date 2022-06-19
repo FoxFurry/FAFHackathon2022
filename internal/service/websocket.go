@@ -74,11 +74,26 @@ func (s *service) HandleTelemetry(ctx context.Context, uuid string, msg models.M
 		return nil, err
 	}
 
+	userRole, err := s.store.GetUserRole(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	var targetRole models.Role
+	if userRole == models.Victim {
+		targetRole = models.Hunter
+	} else if userRole == models.Hunter {
+		targetRole = models.Victim
+	} else {
+		return nil, fmt.Errorf("unknown user role: %s", userRole)
+	}
+
 	var resp []int
 	for _, entry := range nearby {
-		if role, _ := s.store.GetUserRole(ctx, entry.Name); role == models.Victim {
+		if nearbyRole, _ := s.store.GetUserRole(ctx, uuid); nearbyRole != targetRole {
 			continue
 		}
+
 		deltaX := entry.Longitude - coordinates.Longitude
 		deltaY := entry.Latitude - coordinates.Latitude
 		var radians = math.Atan2(deltaY, deltaX)
