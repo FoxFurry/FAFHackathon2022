@@ -35,10 +35,10 @@ func New(ctx context.Context) Server {
 
 func (s *server) Start() {
 	router := gin.Default()
-
+	router.Use(s.corsMiddleware)
 	cors := router.Group("")
 	{
-		cors.Use(s.corsMiddleware)
+
 		cors.GET("/login/test", s.randJWTMiddleware, s.Login)
 		cors.GET("/login", s.jwtMiddleware, s.Login)
 
