@@ -39,8 +39,9 @@ func (s *server) Start() {
 	cors := router.Group("")
 	{
 		cors.Use(s.corsMiddleware)
-		cors.GET("/login", s.jwtMiddleware, s.Login)
 		cors.GET("/login/test", s.randJWTMiddleware, s.Login)
+		cors.GET("/login", s.jwtMiddleware, s.Login)
+
 	}
 
 	router.GET("/ws/:token", s.WS)
