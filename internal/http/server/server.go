@@ -36,12 +36,14 @@ func New(ctx context.Context) Server {
 func (s *server) Start() {
 	router := gin.Default()
 
-	router.Use(s.corsMiddleware)
+	cors := router.Group("/")
+	{
+		cors.Use(s.corsMiddleware)
+		cors.GET("/login", s.jwtMiddleware, s.Login)
+		cors.GET("/login/test", s.randJWTMiddleware, s.Login)
+	}
 
-	router.GET("/login", s.jwtMiddleware, s.Login)
 	router.GET("/ws/:token", s.WS)
-
-	router.GET("/login/test", s.randJWTMiddleware, s.Login)
 	router.GET("/ws/test/:uuid", s.WSTest)
 
 	router.Run(fmt.Sprintf(":%s", viper.GetString("PORT")))
