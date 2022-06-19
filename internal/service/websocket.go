@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 
 	"fafhackathon2022/internal/http/connections"
 	"fafhackathon2022/internal/store/models"
@@ -73,12 +74,16 @@ func (s *service) HandleTelemetry(ctx context.Context, uuid string, msg models.M
 		return nil, err
 	}
 
-	var resp []models.Coordinates
+	var resp []int
 	for _, entry := range nearby {
-		resp = append(resp, models.Coordinates{
-			Longitude: entry.Longitude,
-			Latitude:  entry.Latitude,
-		})
+		if role, _ := s.store.GetUserRole(ctx, entry.Name); role == models.Victim {
+			continue
+		}
+		deltaX := entry.Longitude - coordinates.Longitude
+		deltaY := entry.Latitude - coordinates.Latitude
+		var radians = math.Atan2(deltaY, deltaX)
+		var degree = radians * (180 / math.Pi)
+		resp = append(resp, int(degree))
 	}
 
 	val, err := json.Marshal(resp)
