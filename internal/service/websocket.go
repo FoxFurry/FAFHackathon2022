@@ -90,7 +90,7 @@ func (s *service) HandleTelemetry(ctx context.Context, uuid string, msg models.M
 
 	var resp []int
 	for _, entry := range nearby {
-		if nearbyRole, _ := s.store.GetUserRole(ctx, uuid); nearbyRole != targetRole {
+		if nearbyRole, _ := s.store.GetUserRole(ctx, entry.Name); nearbyRole != targetRole {
 			continue
 		}
 
